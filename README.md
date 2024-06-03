@@ -1,23 +1,183 @@
-[![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-7f7980b617ed060a017424585567c406b6ee15c891e84e1186181d67ecf80aa0.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=15202390)
 # UI Lab 3
-![](terminal-icon.png)
-![](gui-icon.png)
+Task3.png:
 
-Це одна з робіт, які доповнюють основний цикл лабораторних робіт #1-8 (проект **Banking**, [Netbeans](https://netbeans.org/)) з ООП.  Основна мета цих додаткових вправ - познайомитись з різними видами інтерфейсів користувача та засобами їх створення. Згадувані 'базові' роботи розміщено в [окремому репозиторії](https://github.com/liketaurus/OOP-JAVA) (якщо будете робити завдання на "4" або "5" раджу переглянути [діаграму класів](https://github.com/liketaurus/OOP-JAVA/blob/master/MyBank.png), аби розуміти які методи є у класів).
+![image](https://github.com/ppc-ntu-khpi/gui-swing-ieni-nei/assets/113203792/8dc5e0d3-e30c-4f3a-b44b-f25cefb2e867)
 
-В ході першої роботи вам пропонується виконати **наступне завдання** - [Робота 3: GUI з Swing](https://github.com/ppc-ntu-khpi/GUI-Lab1-Starter/blob/master/Lab%203%20-%20SWING/Lab%203.md)
-  
-**Додаткове завдання** (для тих хто зробив все і прагне більшого): [дивіться тут](https://github.com/ppc-ntu-khpi/GUI-Lab1-Starter/blob/master/Lab%203%20-%20SWING/Lab%203%20-%20add.md)
+Task4.png:
 
-Всі необхідні бібліотеки містяться у теці [jars](https://github.com/ppc-ntu-khpi/GUI-Lab1-Starter/tree/master/jars). В тому числі - всі необхідні відкомпільовані класи з робіт 1-8 - файл [MyBank.jar](https://github.com/ppc-ntu-khpi/GUI-Lab1-Starter/blob/master/jars/MyBank.jar). Файл даних лежить у теці [data](https://github.com/ppc-ntu-khpi/GUI-Lab1-Starter/tree/master/data).
+![image](https://github.com/ppc-ntu-khpi/gui-swing-ieni-nei/assets/113203792/16218a81-7ddb-474d-9b4c-97ba0676401f)
 
----
-**УВАГА! Не забуваємо здавати завдання через Google Classroom та вказувати посилання на створений для вас репозиторій!**
+![image](https://github.com/ppc-ntu-khpi/gui-swing-ieni-nei/assets/113203792/14b630cc-a8c2-421d-8e6c-3ee9a16beec5)
 
-Також пам'ятайте, що ніхто не заважає вам редагувати файл README у вашому репозиторії😉.
-А ще - дуже раджу спробувати нову фічу - інтеграцію з IDE REPL.it (хоч з таким завданням вона може й не впоратись, однак, цікаво ж!).
+Task5.png:
 
-[![Gitter](https://badges.gitter.im/PPC-SE-2020/OOP.svg)](https://gitter.im/PPC-SE-2020/OOP?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-![](https://img.shields.io/badge/Made%20with-JAVA-red.svg)
-![](https://img.shields.io/badge/Made%20with-%20Netbeans-brightgreen.svg)
-![](https://img.shields.io/badge/Made%20at-PPC%20NTU%20%22KhPI%22-blue.svg) 
+![image](https://github.com/ppc-ntu-khpi/gui-swing-ieni-nei/assets/113203792/12153607-9166-458d-bb5d-3d728a638b33)
+
+SWINGdemo.java:
+
+```java
+package com.mybank.tui;
+
+import com.mybank.domain.Bank;
+import com.mybank.domain.CheckingAccount;
+import com.mybank.domain.Customer;
+import com.mybank.domain.SavingsAccount;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class SWINGDemo {
+
+    private final JEditorPane log;
+    private final JButton show;
+    private final JButton report;
+    private final JComboBox<String> clients;
+
+    public SWINGDemo() {
+        log = new JEditorPane("text/html", "");
+        log.setPreferredSize(new Dimension(250, 250));
+        show = new JButton("Show");
+        report = new JButton("Report");
+        clients = new JComboBox<>();
+
+        loadCustomersFromFile("test.dat");
+
+        for (int i = 0; i < Bank.getNumberOfCustomers(); i++) {
+            clients.addItem(Bank.getCustomer(i).getLastName() + ", " + Bank.getCustomer(i).getFirstName());
+        }
+    }
+
+    private void launchFrame() {
+        JFrame frame = new JFrame("MyBank clients");
+        frame.setLayout(new BorderLayout());
+        JPanel cpane = new JPanel();
+        cpane.setLayout(new GridLayout(1, 3));
+
+        cpane.add(clients);
+        cpane.add(show);
+        cpane.add(report);
+        frame.add(cpane, BorderLayout.NORTH);
+        frame.add(log, BorderLayout.CENTER);
+
+        show.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                displayCustomerInfo();
+            }
+        });
+
+        report.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                generateReport();
+            }
+        });
+
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
+        frame.setVisible(true);
+    }
+
+    private void displayCustomerInfo() {
+        Customer current = Bank.getCustomer(clients.getSelectedIndex());
+        StringBuilder custInfo = new StringBuilder("<br>&nbsp;<b><span style=\"font-size:2em;\">")
+                .append(current.getLastName()).append(", ").append(current.getFirstName()).append("</span><br><hr>");
+
+        for (int i = 0; i < current.getNumberOfAccounts(); i++) {
+            if (current.getAccount(i) instanceof CheckingAccount) {
+                custInfo.append("&nbsp;<b>Acc Type: Checking</b><br>")
+                        .append("&nbsp;<b>Balance: <span style=\"color:red;\">$")
+                        .append(current.getAccount(i).getBalance()).append("</span></b><br><br>");
+            } else if (current.getAccount(i) instanceof SavingsAccount) {
+                custInfo.append("&nbsp;<b>Acc Type: Savings</b><br>")
+                        .append("&nbsp;<b>Balance: <span style=\"color:red;\">$")
+                        .append(current.getAccount(i).getBalance()).append("</span></b><br><br>");
+            }
+        }
+
+        log.setText(custInfo.toString());
+    }
+
+    private void generateReport() {
+        StringBuilder reportText = new StringBuilder("<br>&nbsp;<b><span style=\"font-size:2em;\">Report</span><br><hr>");
+
+        for (int i = 0; i < Bank.getNumberOfCustomers(); i++) {
+            Customer customer = Bank.getCustomer(i);
+            reportText.append("<br>&nbsp;<b><span style=\"font-size:1.5em;\">")
+                    .append(customer.getLastName()).append(", ").append(customer.getFirstName()).append("</span><br>");
+
+            for (int j = 0; j < customer.getNumberOfAccounts(); j++) {
+                String accountType = customer.getAccount(j) instanceof CheckingAccount ? "Checking" : "Savings";
+                reportText.append("&nbsp;<b>Acc Type: ").append(accountType).append("</b><br>")
+                        .append("&nbsp;<b>Balance: <span style=\"color:red;\">$")
+                        .append(customer.getAccount(j).getBalance()).append("</span></b><br><br>");
+            }
+        }
+
+        log.setText(reportText.toString());
+    }
+
+    private void loadCustomersFromFile(String filename) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] customerData = line.split("\\s+");
+                if (customerData.length < 3) {
+                    System.out.println("Invalid data format for customer: " + line);
+                    continue;
+                }
+                String firstName = customerData[0];
+                String lastName = customerData[1];
+                int numAccounts = Integer.parseInt(customerData[2]);
+                Bank.addCustomer(firstName, lastName);
+                Customer customer = Bank.getCustomer(Bank.getNumberOfCustomers() - 1);
+
+                for (int j = 0; j < numAccounts; j++) {
+                    line = br.readLine();
+                    if (line == null) {
+                        System.out.println("Missing account data for customer: " + firstName + " " + lastName);
+                        break;
+                    }
+                    String[] accountData = line.split("\\s+");
+                    if (accountData.length < 3) {
+                        System.out.println("Invalid data format for account: " + line);
+                        continue;
+                    }
+                    String accountType = accountData[0];
+                    double balance = Double.parseDouble(accountData[1]);
+                    double parameter = Double.parseDouble(accountData[2]);
+
+                    if (accountType.equals("S")) {
+                        customer.addAccount(new SavingsAccount(balance, parameter));
+                    } else if (accountType.equals("C")) {
+                        customer.addAccount(new CheckingAccount(balance, parameter));
+                    } else {
+                        System.out.println("Invalid account type: " + accountType);
+                    }
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        SWINGDemo demo = new SWINGDemo();
+        demo.launchFrame();
+    }
+}
+
+```
